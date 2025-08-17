@@ -9,14 +9,11 @@ class CategorySerializer(serializers.Serializer):
     slug = serializers.SlugField(read_only=True)
     image = serializers.ImageField()
 
-age = serializers.ImageField()
-
 
 class SellerShopSerializer(serializers.Serializer):
     name = serializers.CharField(source="business_name")
     slug = serializers.SlugField()
     avatar = serializers.CharField(source="user.avatar")
-
 
 
 class ProductSerializer(serializers.Serializer):

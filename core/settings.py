@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
+    'django.contrib.sites', # см. ниже
     'rest_framework',
     'drf_spectacular',
     'rest_framework_simplejwt',
@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'apps.reviews',
     'apps.common',
 ]
+
+SITE_ID = 1 # на одном из этапов работы попытка запуска runserver приводила к исключению RuntimeError: Model class django.contrib.sites.models.Site doesn't declare an explicit app_label and isn't in an application in INSTALLED_APPS.
+            # помогло подключение 'django.contrib.sites' и настройка SITE_ID
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
