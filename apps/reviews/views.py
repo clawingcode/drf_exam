@@ -22,7 +22,6 @@ class ProductReviewsView(APIView):
         """,
         tags=tags
     )
-
     def get(self, request, *args, **kwargs):
         product = Product.objects.get_or_none(slug=kwargs["slug"])
         if not product:
@@ -30,3 +29,6 @@ class ProductReviewsView(APIView):
         reviews = Review.objects.select_related("user", "product").filter(product=product)
         serializer = self.serializer_class(reviews, many=True)
         return Response(data=serializer.data, status=HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        pass
