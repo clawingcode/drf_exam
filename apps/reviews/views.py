@@ -7,9 +7,21 @@ from apps.reviews.serializers import ReviewSerializer
 from apps.shop.models import Product
 from apps.reviews.models import Review
 
+from drf_spectacular.utils import extend_schema
+
+tags = ["Reviews"]
+
 
 class ProductReviewsView(APIView):
-    serializer_class =ReviewSerializer
+    serializer_class = ReviewSerializer
+
+    @extend_schema(
+        summary="Product Reviews Fetch",
+        description="""
+            This endpoint return all reviews for a particular product.
+        """,
+        tags=tags
+    )
 
     def get(self, request, *args, **kwargs):
         product = Product.objects.get_or_none(slug=kwargs["slug"])
