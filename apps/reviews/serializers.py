@@ -12,6 +12,6 @@ class ReviewSerializer(serializers.Serializer):
 
 
 class AddReviewSerializer(serializers.Serializer):
-    product = serializers.SlugField()
+    product_slug = serializers.SlugField()
     rating = serializers.IntegerField()
     text = serializers.CharField()
