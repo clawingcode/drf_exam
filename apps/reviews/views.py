@@ -37,7 +37,7 @@ class AddReviewView(APIView):
     serializer_class = ReviewSerializer
 
     @extend_schema(
-        summary="Add product review",
+        summary="Add Product Review",
         description="""
                 This endpoint allows a user to publish review for a product.
             """,
@@ -64,3 +64,15 @@ class AddReviewView(APIView):
             return Response(serializer.data, status=HTTP_201_CREATED)
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class ReviewsViewID(APIView):
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        review = Review.objects.get_or_none(user=user, id=kwargs["id"])
+        if not review:
+            return Response(data={"message": "Review does not exist!"}, status=HTTP_404_NOT_FOUND)
+        serializer = self.serializer_class(review)
+        return Response(data=serializer.data)
