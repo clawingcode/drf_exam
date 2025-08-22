@@ -55,7 +55,7 @@ class AddReviewView(APIView):
             product = Product.objects.get_or_none(slug=product_slug)
             if not product:
                 return Response(data={"message": "Product does not exist!"}, status=HTTP_404_NOT_FOUND)
-            if Review.objects.get_or_none(user=user, product=product, is_deleted=False):
+            if Review.objects.get_or_none(user=user, product=product):
                 return Response(data={"message": "Your review for this product has already been published!"}, status=HTTP_403_FORBIDDEN)
             data["user"] = user
             data["product"] = product
@@ -69,6 +69,13 @@ class AddReviewView(APIView):
 class ReviewsViewID(APIView):
     serializer_class = ReviewSerializer
 
+    @extend_schema(
+        summary="Review Fetch ID",
+        description="""
+                    This endpoint returns a user's review for the product.
+                """,
+        tags=tags,
+    )
     def get(self, request, *args, **kwargs):
         user = request.user
         review = Review.objects.get_or_none(user=user, id=kwargs["id"])
