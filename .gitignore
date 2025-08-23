@@ -1,0 +1,13 @@
+# .gitignore file of DRF project
+
+# venv and PyCharm folders
+.venv
+.idea
+
+# default database
+db.sqlite3
+
+# media files
+media
+
+
