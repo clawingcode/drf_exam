@@ -79,7 +79,6 @@ class ReviewsViewID(APIView):
         tags=tags,
     )
     def get(self, request, *args, **kwargs):
-        user = request.user
         review = Review.objects.get_or_none(id=kwargs["id"])
 
         if not review:
@@ -99,7 +98,6 @@ class ReviewsViewID(APIView):
         responses=ReviewSerializer
     )
     def put(self, request, *args, **kwargs):
-        user = request.user
         review = Review.objects.get_or_none(id=kwargs["id"])
 
         if not review:
