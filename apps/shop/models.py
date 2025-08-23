@@ -1,8 +1,8 @@
 from autoslug import AutoSlugField
 from django.db import models
+from django.db.models import Avg
 
 from apps.common.models import BaseModel, IsDeletedModel
-from apps.sellers.models import Seller
 
 
 class Category(BaseModel):
@@ -69,3 +69,7 @@ class Product(IsDeletedModel):
 
     def __str__(self):
         return str(self.name)
+
+    @property
+    def get_avg_rating(self):
+        return self.reviews.aggregate(Avg("rating"))["rating__avg"]

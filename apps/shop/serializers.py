@@ -21,6 +21,7 @@ class ProductSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.SlugField()
     desc = serializers.CharField()
+    avg_rating = serializers.DecimalField(max_digits=10, decimal_places=2, source="get_avg_rating")
     price_old = serializers.DecimalField(max_digits=10, decimal_places=2)
     price_current = serializers.DecimalField(max_digits=10, decimal_places=2)
     category = CategorySerializer()
