@@ -2,10 +2,14 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.common.paginations import CustomPagination
 from apps.common.utils import set_dict_attr
 
 from apps.profiles.models import ShippingAddress, Order, OrderItem
 from apps.profiles.serializers import ProfileSerializer, ShippingAddressSerializer
+from apps.reviews.models import Review
+from apps.reviews.schema_examples import REVIEW_PARAM_EXAMPLE
+from apps.reviews.serializers import ReviewSerializer
 from apps.shop.serializers import OrderSerializer, CheckItemOrderSerializer
 
 from apps.common.permissions import IsOwner
@@ -198,3 +202,24 @@ class OrderItemsView(APIView):
         order_items = OrderItem.objects.filter(order=order)
         serializer = self.serializer_class(order_items, many=True)
         return Response(data=serializer.data, status=200)
+
+
+# добавил один собственный endpoint для вывода всех отзывов пользователя (ИМХО может быть полезно для страницы профиля)
+class ProfileReviewsView(APIView):
+    serializer_class = ReviewSerializer
+    pagination_class = CustomPagination
+
+    @extend_schema(
+        summary="User Reviews Fetch",
+        description="""
+                        This endpoint allows to get all user's reviews.
+                    """,
+        tags=tags,
+        parameters=REVIEW_PARAM_EXAMPLE
+    )
+    def get(self, request, *args, **kwargs):
+        reviews = Review.objects.select_related("user").filter(user=request.user)
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(reviews, request)
+        serializer = self.serializer_class(paginated_queryset, many=True)
+        return paginator.get_paginated_response(data=serializer.data)

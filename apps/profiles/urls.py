@@ -1,6 +1,7 @@
 from django.urls import path
 
-from apps.profiles.views import ProfileView, ShippingAddressesView, ShippingAddressViewID, OrdersView, OrderItemsView
+from apps.profiles.views import ProfileView, ShippingAddressesView, ShippingAddressViewID, OrdersView, OrderItemsView, \
+    ProfileReviewsView
 
 urlpatterns = [
     path("", ProfileView.as_view()),
@@ -8,4 +9,5 @@ urlpatterns = [
     path("shipping_addresses/detail/<uuid:id>/", ShippingAddressViewID.as_view()),
     path("orders/", OrdersView.as_view()),
     path("orders/<str:tx_ref>/", OrderItemsView.as_view()),
+    path("reviews/", ProfileReviewsView.as_view())
 ]

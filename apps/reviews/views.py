@@ -140,22 +140,3 @@ class ReviewsViewID(APIView):
         return Response(data={"message": "Review deleted successfully"}, status=HTTP_204_NO_CONTENT)
 
 
-# добавил один собственный endpoint для вывода всех отзывов пользователя (ИМХО может быть полезно для страницы профиля)
-class UserReviewsView(APIView):
-    serializer_class = ReviewSerializer
-    pagination_class = CustomPagination
-
-    @extend_schema(
-        summary="User Reviews Fetch",
-        description="""
-                        This endpoint allows to get all user's reviews.
-                    """,
-        tags=tags,
-        parameters=REVIEW_PARAM_EXAMPLE
-    )
-    def get(self, request, *args, **kwargs):
-        reviews = Review.objects.select_related("user").filter(user=request.user)
-        paginator = self.pagination_class()
-        paginated_queryset = paginator.paginate_queryset(reviews, request)
-        serializer = self.serializer_class(paginated_queryset, many=True)
-        return paginator.get_paginated_response(data=serializer.data)
