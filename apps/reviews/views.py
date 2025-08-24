@@ -1,6 +1,7 @@
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED, \
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN, HTTP_201_CREATED, \
     HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
+from rest_framework.utils.representation import serializer_repr
 from rest_framework.views import APIView
 
 from apps.common.utils import set_dict_attr
@@ -31,7 +32,7 @@ class ProductReviewsView(APIView):
             return Response(data={"message": "Product does not exist!"}, status=HTTP_404_NOT_FOUND)
         reviews = Review.objects.select_related("user", "product").filter(product=product)
         serializer = self.serializer_class(reviews, many=True)
-        return Response(data=serializer.data, status=HTTP_200_OK)
+        return Response(data=serializer.data)
 
 
 class AddReviewView(APIView):
@@ -112,7 +113,7 @@ class ReviewsViewID(APIView):
             review = set_dict_attr(review, data)
             review.save()
             serializer = self.serializer_class(review)
-            return Response(serializer.data, status=HTTP_200_OK)
+            return Response(serializer.data)
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
@@ -133,3 +134,20 @@ class ReviewsViewID(APIView):
         review.delete()
         # В других частях проекта (напр., apps/sellers/views.py SellerProductView) delete() возвращает статус 200, хотя docs ожидает Responses 204. Здесь я решил вернуть 204
         return Response(data={"message": "Review deleted successfully"}, status=HTTP_204_NO_CONTENT)
+
+
+# добавил один собственный endpoint для вывода всех отзывов пользователя (ИМХО может быть полезно для страницы профиля)
+class UserReviewsView(APIView):
+    serializer_class = ReviewSerializer
+
+    @extend_schema(
+        summary="User Reviews Fetch",
+        description="""
+                        This endpoint allows to get all user's reviews.
+                    """,
+        tags=tags,
+    )
+    def get(self, request, *args, **kwargs):
+        reviews = Review.objects.select_related("user").filter(user=request.user)
+        serializer = self.serializer_class(reviews, many=True)
+        return Response(data=serializer.data)
