@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN, HTTP_201_CREATED, \
     HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
-from rest_framework.utils.representation import serializer_repr
+
 from rest_framework.views import APIView
 
 from apps.common.utils import set_dict_attr
@@ -10,29 +10,33 @@ from apps.shop.models import Product
 from apps.reviews.models import Review
 
 from drf_spectacular.utils import extend_schema
-
-from apps.shop.serializers import CreateProductSerializer
+from apps.reviews.schema_examples import REVIEW_PARAM_EXAMPLE
+from apps.common.paginations import CustomPagination
 
 tags = ["Reviews"]
 
 
 class ProductReviewsView(APIView):
     serializer_class = ReviewSerializer
+    pagination_class = CustomPagination
 
     @extend_schema(
         summary="Product Reviews Fetch",
         description="""
             This endpoint return all reviews for a particular product.
         """,
-        tags=tags
+        tags=tags,
+        parameters=REVIEW_PARAM_EXAMPLE
     )
     def get(self, request, *args, **kwargs):
         product = Product.objects.get_or_none(slug=kwargs["slug"])
         if not product:
             return Response(data={"message": "Product does not exist!"}, status=HTTP_404_NOT_FOUND)
         reviews = Review.objects.select_related("user", "product").filter(product=product)
-        serializer = self.serializer_class(reviews, many=True)
-        return Response(data=serializer.data)
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(reviews, request)
+        serializer = self.serializer_class(paginated_queryset, many=True)
+        return paginator.get_paginated_response(data=serializer.data)
 
 
 class AddReviewView(APIView):
@@ -139,6 +143,7 @@ class ReviewsViewID(APIView):
 # добавил один собственный endpoint для вывода всех отзывов пользователя (ИМХО может быть полезно для страницы профиля)
 class UserReviewsView(APIView):
     serializer_class = ReviewSerializer
+    pagination_class = CustomPagination
 
     @extend_schema(
         summary="User Reviews Fetch",
@@ -146,8 +151,11 @@ class UserReviewsView(APIView):
                         This endpoint allows to get all user's reviews.
                     """,
         tags=tags,
+        parameters=REVIEW_PARAM_EXAMPLE
     )
     def get(self, request, *args, **kwargs):
         reviews = Review.objects.select_related("user").filter(user=request.user)
-        serializer = self.serializer_class(reviews, many=True)
-        return Response(data=serializer.data)
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(reviews, request)
+        serializer = self.serializer_class(paginated_queryset, many=True)
+        return paginator.get_paginated_response(data=serializer.data)
