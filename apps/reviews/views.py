@@ -136,7 +136,6 @@ class ReviewsViewID(APIView):
             return Response(data={"message": "Access is denied!"}, status=HTTP_403_FORBIDDEN)
 
         review.delete()
-        # В других частях проекта (напр., apps/sellers/views.py SellerProductView) delete() возвращает статус 200, хотя docs ожидает Responses 204. Здесь я решил вернуть 204
-        return Response(data={"message": "Review deleted successfully"}, status=HTTP_204_NO_CONTENT)
+        return Response(data={"message": "Review deleted successfully"})
 
 
